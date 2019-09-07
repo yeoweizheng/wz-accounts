@@ -1,0 +1,15 @@
+@media (max-width: 767px){
+    .container {
+        padding: 0px;
+        margin: 0px;
+    }
+}
+
+.panel-heading{
+    text-align: center;
+}
+
+.nopadding {
+    padding: 0px !important;
+    margin: 0px !important;
+}
