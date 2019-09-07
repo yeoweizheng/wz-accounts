@@ -2,10 +2,6 @@
     require "../head.php"; 
     require "../config.php";
     require "../verifyAuth.php";
-    if(!isset($_SESSION['username'])){
-        header('Location: /');
-        exit();
-    }
     if($_SERVER["REQUEST_METHOD"] == "POST"){
         $conn = mysqli_connect(DBHOST, DBUSER, DBPASSWD, DBNAME);
         if(!$conn){
