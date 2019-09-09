@@ -1,3 +1,4 @@
+# wz-accounts
 ### Introduction
 This is a simple personal expenses & income tracking website with the following features:
 * User authentication
