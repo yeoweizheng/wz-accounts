@@ -32,6 +32,8 @@ int main(int argc, char *argv[]) {
 		}
 		free(file_path);
 		free(file_content);
+		fclose(fp);
 	}
+	closedir(folder);
 	return(EXIT_SUCCESS);
 }
