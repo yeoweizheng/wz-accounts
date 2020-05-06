@@ -1,6 +1,7 @@
 <?php
     ini_set("session.cookie_lifetime", 3600 * 24 * 365);
     ini_set("session.gc_probability", 0);
+    ini_set("session.save_path", realpath(dirname($_SERVER["DOCUMENT_ROOT"]) . "/sessions"));
     session_start();
     $_SESSION['lastAccess'] = time();
 ?>
