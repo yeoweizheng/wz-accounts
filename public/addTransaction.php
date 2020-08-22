@@ -2,28 +2,34 @@
     require "../head.php";
     require "../config.php";
     require "../verifyAuth.php";
-    $conn = mysqli_connect(DBHOST, DBUSER, DBPASSWD, DBNAME);
-    if(!$conn){
-        die("Connection error: " . mysqli_connect_error());
-    } 
+    $conn = new SQLite3(SQLITEFILE, SQLITE3_OPEN_READWRITE);
+    $conn->busyTimeout(5000);
     if($_SERVER["REQUEST_METHOD"] == "POST"){
         $err = 0;
         if($_POST["type"] == "Expense" || $_POST["type"] == "Both"){
-            $stmt = $conn->prepare("INSERT INTO transactions (username, type, item, amount, account, date) VALUES (?, ?, ?, ?, ?, ?)");
+            $stmt = $conn->prepare("INSERT INTO transactions (username, type, item, amount, account, transaction_date) VALUES (:username, :type, :item, :amount, :account, :transaction_date)");
             $type = "Expense";
-            $date = date("Y-m-d", strtotime($_POST["date"]));
-            $stmt->bind_param("sssdss", $_SESSION["username"], $type, htmlspecialchars($_POST["item"]), floatval($_POST["expenseAmount"]), $_POST["expenseAccount"], $date);
+            $transaction_date = date("Y-m-d", strtotime($_POST["date"]));
+            $stmt->bindValue(":username", $_SESSION["username"]);
+            $stmt->bindValue(":type", $type);
+            $stmt->bindValue(":item", htmlspecialchars($_POST["item"]));
+            $stmt->bindValue(":amount", floatval($_POST["expenseAmount"]));
+            $stmt->bindValue(":account", $_POST["expenseAccount"]);
+            $stmt->bindValue(":transaction_date", $transaction_date);
             if(!$stmt->execute()) $err = 1;
-            $stmt->close();
         }
         if($_POST["type"] == "Income" || $_POST["type"] == "Both"){
-            $stmt = $conn->prepare("INSERT INTO transactions (username, type, item, amount, account, date) VALUES (?, ?, ?, ?, ?, ?)");
+            $stmt = $conn->prepare("INSERT INTO transactions (username, `type`, item, amount, account, transaction_date) VALUES (:username, :type, :item, :amount, :account, :transaction_date)");
             $type = "Income";
-            $stmt->bind_param("sssdss", $_SESSION["username"], $type, htmlspecialchars($_POST["item"]), floatval($_POST["incomeAmount"]), $_POST["incomeAccount"], date("Y-m-d", strtotime($_POST["date"])));
+            $transaction_date = date("Y-m-d", strtotime($_POST["date"]));
+            $stmt->bindValue(":username", $_SESSION["username"]);
+            $stmt->bindValue(":type", $type);
+            $stmt->bindValue(":item", htmlspecialchars($_POST["item"]));
+            $stmt->bindValue(":amount", floatval($_POST["incomeAmount"]));
+            $stmt->bindValue(":account", $_POST["incomeAccount"]);
+            $stmt->bindValue(":transaction_date", $transaction_date);
             if(!$stmt->execute()) $err = 1;
-            $stmt->close();
         }
-        mysqli_close($conn);
         if($err == 0){
             $_SESSION["successAlert"] = "Transaction added";
         } else {
@@ -107,11 +113,10 @@
                             <div class="col-xs-6" style="padding-left: 0px;">
                                 <select class="form-control" name="expenseAccount">
                                     <?php
-                                        $stmt = $conn->prepare("SELECT account FROM money_accounts WHERE username = ? ORDER BY id ASC");
-                                        $stmt->bind_param("s", $_SESSION["username"]);
-                                        $stmt->execute();
-                                        $result = $stmt->get_result();
-                                        while($row = $result->fetch_assoc()){
+                                        $stmt = $conn->prepare("SELECT account FROM money_accounts WHERE username = :username ORDER BY id ASC");
+                                        $stmt->bindValue(":username", $_SESSION["username"]);
+                                        $result = $stmt->execute();
+                                        while($row = $result->fetchArray()){
                                             echo "<option>" . $row["account"] . "</option>";
                                         }
                                     ?>
@@ -128,12 +133,9 @@
                             <div class="col-xs-6" style="padding-left: 0px;">
                                 <select class="form-control" name="incomeAccount">
                                     <?php
-                                        mysqli_data_seek($result, 0);
-                                        while($row = $result->fetch_assoc()){
+                                        while($row = $result->fetchArray()){
                                             echo "<option>" . $row["account"] . "</option>";
                                         }
-                                        $stmt->close();
-                                        mysqli_close($conn);
                                     ?>
                                 </select>
                             </div>

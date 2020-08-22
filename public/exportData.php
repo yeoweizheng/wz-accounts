@@ -3,28 +3,25 @@
     require "../head.php";
     require "../config.php";
     require "../verifyAuth.php";
-    $conn = mysqli_connect(DBHOST, DBUSER, DBPASSWD, DBNAME);
-    if(!$conn){
-        die("Connection error: " . mysqli_connect_error());
-    } 
+    $conn = new SQLite3(SQLITEFILE, SQLITE3_OPEN_READWRITE);
+    $conn->busyTimeout(5000);
     if($_SERVER["REQUEST_METHOD"] == "POST"){
         ob_end_clean();
         header("Content-Type: text/csv");
         header("Content-Disposition: attachment; filename=transactions.csv");
         $output = fopen("php://output", "w");
         fputcsv($output, array("Date", "Item", "Type", "Amount", "Account"));
-        $stmt = $conn->prepare("SELECT date, item, type, amount, account FROM transactions WHERE username = ? AND date >= ? AND date <= ? ORDER BY date ASC");
+        $stmt = $conn->prepare("SELECT transaction_date, item, type, amount, account FROM transactions WHERE username = :username AND transaction_date >= :startdate AND transaction_date <= :enddate ORDER BY transaction_date ASC");
         $startdate = date("Y-m-d", strtotime($_POST["startdate"]));
         $enddate = date("Y-m-d", strtotime($_POST["enddate"]));
-        $stmt->bind_param("sss", $_SESSION["username"], $startdate, $enddate);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        while($row = $result->fetch_assoc()){
+        $stmt->bindValue(":username", $_SESSION["username"]);
+        $stmt->bindValue(":startdate", $startdate);
+        $stmt->bindValue(":enddate", $enddate);
+        $result = $stmt->execute();
+        while($row = $result->fetchArray()){
             $row["item"] = htmlspecialchars_decode($row["item"]);
             fputcsv($output, $row);
         }
-        $stmt->close();
-        mysqli_close($conn);
         exit();
     }
 ?>

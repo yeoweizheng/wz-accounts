@@ -2,16 +2,18 @@
     require "../head.php";
     require "../config.php";
     require "../verifyAuth.php";
-    $conn = mysqli_connect(DBHOST, DBUSER, DBPASSWD, DBNAME);
-    if(!$conn){
-        die("Connection error: " . mysqli_connect_error());
-    } 
+    $conn = new SQLite3(SQLITEFILE, SQLITE3_OPEN_READWRITE);
+    $conn->busyTimeout(5000);
     if($_SERVER["REQUEST_METHOD"] == "POST"){
         echo $_POST["id"];
         echo $_POST["operation"];
         if($_POST["operation"] == "update"){
-            $stmt = $conn->prepare("UPDATE transactions SET item = ?, type = ?, amount = ?, account = ? WHERE id = ?");
-            $stmt->bind_param("ssdsd", htmlspecialchars($_POST["item"]), $_POST["type"], $_POST["amount"], $_POST["account"], $_POST["id"]);
+            $stmt = $conn->prepare("UPDATE transactions SET item = :item, type = :type, amount = :amount, account = :account WHERE id = :id");
+            $stmt->bindValue(":item", htmlspecialchars($_POST["item"]));
+            $stmt->bindValue(":type", $_POST["type"]);
+            $stmt->bindValue(":amount", $_POST["amount"]);
+            $stmt->bindValue(":account", $_POST["account"]);
+            $stmt->bindValue(":id", $_POST["id"]);
             if($stmt->execute()){
                 $_SESSION["successAlert"] = "Transaction updated";
             } else{
@@ -19,16 +21,14 @@
             }
         }
         if($_POST["operation"] == "delete"){
-            $stmt = $conn->prepare("DELETE FROM transactions WHERE id = ?");
-            $stmt->bind_param("d", $_POST["id"]);
+            $stmt = $conn->prepare("DELETE FROM transactions WHERE id = :id");
+            $stmt->bindValue(":id", $_POST["id"]);
             if($stmt->execute()){
                 $_SESSION["successAlert"] = "Transaction deleted";
             } else{
                 $_SESSION["errorAlert"] = "Failed to delete transaction";
             }
         }
-        $stmt->close();
-        mysqli_close($conn);
         if($_POST["returnPage"] == "dailyTransactions") {
             header("Location: dailyTransactions.php?date=" . $_POST["date"]);
         } else if($_POST["returnPage"] == "viewTransactions"){
@@ -38,15 +38,13 @@
         }
         exit();
     }
-    $stmt = $conn->prepare("SELECT id, item, type, amount, account, date FROM transactions WHERE id = ?");
-    $stmt->bind_param("d", $_GET["id"]);
-    $stmt->execute();
-    $row = $stmt->get_result()->fetch_assoc();
-    $stmt->close();
+    $stmt = $conn->prepare("SELECT id, item, type, amount, account, transaction_date FROM transactions WHERE id = :id");
+    $stmt->bindValue(":id", $_GET["id"]);
+    $row = $stmt->execute()->fetchArray();
 ?>
 <script>
     $(document).ready(function(){
-        $("#date").val("<?php echo date("j-M-y", strtotime($row["date"])); ?>");
+        $("#date").val("<?php echo date("j-M-y", strtotime($row["transaction_date"])); ?>");
         $("#item").val("<?php echo htmlspecialchars_decode($row["item"]); ?>");
         $("#type").val("<?php echo $row["type"]; ?>");
         $("#amount").val("<?php echo $row["amount"]; ?>");
@@ -67,7 +65,7 @@
             <div class="panel-heading">
                 <?php
                     if($_GET["returnPage"] == "dailyTransactions"){
-                        echo "<button class=\"btn btn-default btn-sm pull-left\" style=\"margin-top: 5px;\" onclick=\"goto('dailyTransactions.php?date=" . date("j-M-y", strtotime($row["date"])) . "')\">";
+                        echo "<button class=\"btn btn-default btn-sm pull-left\" style=\"margin-top: 5px;\" onclick=\"goto('dailyTransactions.php?date=" . date("j-M-y", strtotime($row["transaction_date"])) . "')\">";
                     } else {
                         echo "<button class=\"btn btn-default btn-sm pull-left\" style=\"margin-top: 5px;\" onclick=\"goto('viewTransactions.php?startdate=" . date("j-M-y", strtotime($_GET["startdate"])) . "&enddate=" . date("j-M-y", strtotime($_GET["enddate"])) . "')\">";
                     }
@@ -113,15 +111,12 @@
                             <div class="col-xs-6" style="padding-left: 0px;">
                                 <select class="form-control" id="account" name="account">
                                     <?php
-                                        $stmt = $conn->prepare("SELECT account FROM money_accounts WHERE username = ? ORDER BY id ASC");
-                                        $stmt->bind_param("s", $_SESSION["username"]);
-                                        $stmt->execute();
-                                        $result = $stmt->get_result();
-                                        while($row = $result->fetch_assoc()){
+                                        $stmt = $conn->prepare("SELECT account FROM money_accounts WHERE username = :username ORDER BY id ASC");
+                                        $stmt->bindValue(":username", $_SESSION["username"]);
+                                        $result = $stmt->execute();
+                                        while($row = $result->fetchArray()){
                                             echo "<option>" . $row["account"] . "</option>";
                                         }
-                                        $stmt->close();
-                                        mysqli_close($conn);
                                     ?>
                                 </select>
                             </div>

@@ -2,25 +2,20 @@
     require "../head.php";
     require "../config.php";
     require "../verifyAuth.php";
-    $conn = mysqli_connect(DBHOST, DBUSER, DBPASSWD, DBNAME);
-    if(!$conn){
-        die("Connection error: " . mysqli_connect_error());
-    } 
+    $conn = new SQLite3(SQLITEFILE, SQLITE3_OPEN_READWRITE);
+    $conn->busyTimeout(5000);
     if($_SERVER["REQUEST_METHOD"] == "POST"){
-        $stmt = $conn->prepare("UPDATE user_accounts SET balance_date = ? WHERE username = ?");
+        $stmt = $conn->prepare("UPDATE user_accounts SET balance_date = :balance_date WHERE username = :username");
         $date = date("Y-m-d", strtotime($_POST["date"]));
-        $stmt->bind_param("ss", $date, $_SESSION["username"]);
+        $stmt->bindValue(":balance_date", $date);
+        $stmt->bindValue(":username", $_SESSION["username"]);
         $stmt->execute();
-        $stmt->close();
-        mysqli_close($conn);
         header("Location: viewBalance.php");
         exit();
     }
-    $stmt = $conn->prepare("SELECT balance_date FROM user_accounts WHERE username = ?");
-    $stmt->bind_param("s", $_SESSION["username"]);
-    $stmt->execute();
-    $row = $stmt->get_result()->fetch_assoc();
-    $stmt->close();
+    $stmt = $conn->prepare("SELECT balance_date FROM user_accounts WHERE username = :username");
+    $stmt->bindValue(":username", $_SESSION["username"]);
+    $row = $stmt->execute()->fetchArray();
 ?>
 <script>
     $(document).ready(function(){
@@ -58,16 +53,15 @@
                 <div class="form-group">
                     <label> Balance amount: </label>
                     <?php
-                        $stmt = $conn->prepare("SELECT balance_date FROM user_accounts WHERE username = ?");
-                        $stmt->bind_param("s", $_SESSION["username"]);
-                        $stmt->execute();
-                        $row = $stmt->get_result()->fetch_assoc();
-                        $stmt = $conn->prepare("SELECT type, amount FROM transactions WHERE username = ? AND date >= ?");
-                        $stmt->bind_param("ss", $_SESSION["username"], $row["balance_date"]);
-                        $stmt->execute();
-                        $result = $stmt->get_result();
+                        $stmt = $conn->prepare("SELECT balance_date FROM user_accounts WHERE username = :username");
+                        $stmt->bindValue(":username", $_SESSION["username"]);
+                        $row = $stmt->execute()->fetchArray();
+                        $stmt = $conn->prepare("SELECT type, amount FROM transactions WHERE username = :username AND transaction_date >= :balance_date");
+                        $stmt->bindValue(":username", $_SESSION["username"]);
+                        $stmt->bindValue(":balance_date", $row["balance_date"]);
+                        $result = $stmt->execute();
                         $balance = 0;
-                        while($row = $result->fetch_assoc()){
+                        while($row = $result->fetchArray()){
                             if($row["type"] == "Income"){
                                 $balance = $balance + $row["amount"];
                             }
@@ -76,8 +70,6 @@
                             }
                         }
                         echo "<h4 style='margin: 0px;'>" . number_format($balance, 2, ".", "") . "</h4>";
-                        $stmt->close();
-                        mysqli_close($conn);
                     ?>
                 </div>
                     <div class="form-group">

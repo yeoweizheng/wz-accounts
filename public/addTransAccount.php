@@ -3,19 +3,16 @@
     require "../config.php";
     require "../verifyAuth.php";
     if($_SERVER["REQUEST_METHOD"] == "POST"){
-        $conn = mysqli_connect(DBHOST, DBUSER, DBPASSWD, DBNAME);
-        if(!$conn){
-            die("Connection error: " . mysqli_connect_error());
-        } 
-        $stmt = $conn->prepare("INSERT INTO money_accounts (username, account) VALUES (?, ?)");
-        $stmt->bind_param("ss", $_SESSION["username"], htmlspecialchars($_POST["account"]));
+        $conn = new SQLite3(SQLITEFILE, SQLITE3_OPEN_READWRITE);
+        $conn->busyTimeout(5000);
+        $stmt = $conn->prepare("INSERT INTO money_accounts (username, account) VALUES (:username, :account)");
+        $stmt->bindValue(":username", $_SESSION["username"]);
+        $stmt->bindValue(":account", htmlspecialchars($_POST["account"]));
         if($stmt->execute()){
             $_SESSION["successAlert"] = "Transaction account added";
         } else {
             $_SESSION["errorAlert"] = "Failed to add transaction account";
         }
-        $stmt->close();
-        mysqli_close($conn);
         header("Location: transAccounts.php");
         exit();
     }

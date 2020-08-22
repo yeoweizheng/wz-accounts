@@ -2,27 +2,22 @@
     require "../head.php";
     require "../config.php";
     require "../verifyAuth.php";
-    $conn = mysqli_connect(DBHOST, DBUSER, DBPASSWD, DBNAME);
-    if(!$conn){
-        die("Connection error: " . mysqli_connect_error());
-    } 
+    $conn = new SQLite3(SQLITEFILE, SQLITE3_OPEN_READWRITE);
+    $conn->busyTimeout(5000);
     if($_SERVER["REQUEST_METHOD"] == "POST"){
-        $stmt = $conn->prepare("DELETE from money_accounts WHERE id = ?");
-        $stmt->bind_param("d", $_POST["id"]);
+        $stmt = $conn->prepare("DELETE from money_accounts WHERE id = :id");
+        $stmt->bindValue(":id", $_POST["id"]);
         if($stmt->execute()){
             $_SESSION["successAlert"] = "Transaction account deleted";
         } else{
             $_SESSION["errorAlert"] = "Failed to delete transaction account";
         }
-        $stmt->close();
-        mysqli_close($conn);
         header("Location: transAccounts.php");
         exit();
     }
-    $stmt = $conn->prepare("SELECT id, account FROM money_accounts WHERE username = ? ORDER BY id ASC");
-    $stmt->bind_param("s", $_SESSION["username"]);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    $stmt = $conn->prepare("SELECT id, account FROM money_accounts WHERE username = :username ORDER BY id ASC");
+    $stmt->bindValue(":username", $_SESSION["username"]);
+    $result = $stmt->execute();
 ?>
 <script>
     function removeAccount(id){
@@ -53,14 +48,12 @@
                     </thead>
                     <tbody>
                         <?php
-                            while($row = $result->fetch_assoc()){
+                            while($row = $result->fetchArray()){
                                 echo "<tr>";
                                 echo "<td class='col-xs-1'><button class='btn btn-danger btn-xs' onclick='removeAccount(" . $row["id"] . ");'>&times;</button></td>";
                                 echo "<td class='col-xs-11'>" . $row["account"] . "</td>";
                                 echo "</tr>";
                             }
-                            $stmt->close();
-                            mysqli_close($conn);
                         ?>
                     </tbody>
                 </table>

@@ -8,29 +8,24 @@
             header("Location: changePassword.php");
             exit();
         }
-        $conn = mysqli_connect(DBHOST, DBUSER, DBPASSWD, DBNAME);
-        if(!$conn){
-            die("Connection error: " . mysqli_connect_error());
-        } 
-        $stmt = $conn->prepare("SELECT username, password FROM user_accounts WHERE username = ?");
-        $stmt->bind_param("s", $_SESSION["username"]);
-        $stmt->execute();
-        $row = $stmt->get_result()->fetch_assoc();
-        $stmt->close();
+        $conn = new SQLite3(SQLITEFILE, SQLITE3_OPEN_READWRITE);
+        $conn->busyTimeout(5000);
+        $stmt = $conn->prepare("SELECT username, password FROM user_accounts WHERE username = :username");
+        $stmt->bindValue(":username", $_SESSION["username"]);
+        $row = $stmt->execute()->fetchArray();
         if(password_verify($_POST["oldpass"], $row["password"])){
-            $stmt = $conn->prepare("UPDATE user_accounts SET password = ? WHERE username = ?");
+            $stmt = $conn->prepare("UPDATE user_accounts SET password = :password WHERE username = :username");
             $hash = password_hash($_POST["newpass"], PASSWORD_DEFAULT);
-            $stmt->bind_param("ss", $hash, $_SESSION["username"]);
+            $stmt->bindValue(":password", $hash);
+            $stmt->bindValue(":username", $_SESSION["username"]);
             if($stmt->execute()){
                 $_SESSION["successAlert"] = "Password changed successfully";
             } else{
                 $_SESSION["errorAlert"] = "Failed to change password";
             }
-            $stmt->close();
         } else{
             $_SESSION["errorAlert"] = "Old password incorrect";
         }
-        mysqli_close($conn);
         header("Location: changePassword.php");
         exit();
     }

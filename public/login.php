@@ -2,16 +2,11 @@
     require "../head.php"; 
     require "../config.php";
     if(isset($_POST["username"])){
-        $conn = mysqli_connect(DBHOST, DBUSER, DBPASSWD, DBNAME);
-        if(!$conn){
-            die("Connection error: " . mysqli_connect_error());
-        } 
-        $stmt = $conn->prepare("SELECT username, password FROM user_accounts WHERE username = ?");
-        $stmt->bind_param("s", $_POST["username"]);
-        $stmt->execute();
-        $row = $stmt->get_result()->fetch_assoc();
-        $stmt->close();
-        mysqli_close($conn);
+        $conn = new SQLite3(SQLITEFILE, SQLITE3_OPEN_READWRITE);
+        $conn->busyTimeout(5000);
+        $stmt = $conn->prepare("SELECT username, password FROM user_accounts WHERE username = :username");
+        $stmt->bindValue(":username", $_POST["username"]);
+        $row = $stmt->execute()->fetchArray();
         if(password_verify($_POST["password"], $row["password"])){
             $_SESSION["username"] = $_POST["username"];
             header("Location: /");

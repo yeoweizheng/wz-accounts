@@ -2,15 +2,13 @@
     require "../head.php";
     require "../config.php";
     require "../verifyAuth.php";
-    $conn = mysqli_connect(DBHOST, DBUSER, DBPASSWD, DBNAME);
-    if(!$conn){
-        die("Connection error: " . mysqli_connect_error());
-    } 
-    $stmt = $conn->prepare("SELECT id, item, type, amount, account FROM transactions WHERE username = ? AND date = ? ORDER BY id ASC");
-    $date = date("Y-m-d", strtotime($_GET["date"]));
-    $stmt->bind_param("ss", $_SESSION["username"], $date);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    $conn = new SQLite3(SQLITEFILE, SQLITE3_OPEN_READWRITE);
+    $conn->busyTimeout(5000);
+    $stmt = $conn->prepare("SELECT id, item, type, amount, account FROM transactions WHERE username = :username AND transaction_date = :transaction_date ORDER BY id ASC");
+    $transaction_date = date("Y-m-d", strtotime($_GET["date"]));
+    $stmt->bindValue(":username", $_SESSION["username"]);
+    $stmt->bindValue(":transaction_date", $transaction_date);
+    $result = $stmt->execute();
 ?>
 <script>
     $(document).ready(function(){
@@ -91,19 +89,18 @@
                             $totalExpense = 0;
                             $totalIncome = 0;
                             $overallSum = 0;
-                            mysqli_data_seek($result, 0);
-                            while($row = $result->fetch_assoc()){
+                            while($row = $result->fetchArray()){
                                 echo "<tr style='cursor: pointer;' onclick=\"editTransaction('" . $row["id"] ."')\">";
                                 echo "<td style='word-wrap: break-word;'>" . $row["item"] . "</td>";
                                 if($row["type"] == "Expense"){
-                                    echo "<td>" . $row["amount"] . "</td>";
+                                    echo "<td>" . number_format($row["amount"], 2, ".", "") . "</td>";
                                     echo "<td>-</td>";
                                     $totalExpense = $totalExpense + $row["amount"];
                                     $overallSum = $overallSum + $row["amount"];
                                 }
                                 if($row["type"] == "Income"){
                                     echo "<td>-</td>";
-                                    echo "<td>" . $row["amount"] . "</td>";
+                                    echo "<td>" . number_format($row["amount"], 2, ".", "") . "</td>";
                                     $totalIncome = $totalIncome + $row["amount"];
                                     $overallSum = $overallSum - $row["amount"];
                                 }
@@ -116,8 +113,6 @@
                             echo "<td>" . number_format($totalIncome, 2, ".", "") . "</td>";
                             echo "<td>" . number_format($overallSum, 2, ".", "") . "</td>";
                             echo "</tr>";
-                            $stmt->close();
-                            mysqli_close($conn);
                         ?>
                     </tbody>
                 </table>

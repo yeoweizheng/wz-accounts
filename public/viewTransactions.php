@@ -2,21 +2,18 @@
     require "../head.php";
     require "../config.php";
     require "../verifyAuth.php";
-    $conn = mysqli_connect(DBHOST, DBUSER, DBPASSWD, DBNAME);
-    if(!$conn){
-        die("Connection error: " . mysqli_connect_error());
-    } 
-    $stmt = $conn->prepare("SELECT id, date, item, type, amount, account FROM transactions WHERE username = ? AND date >= ? AND date <= ? ORDER BY date ASC, id ASC");
+    $conn = new SQLite3(SQLITEFILE, SQLITE3_OPEN_READWRITE);
+    $conn->busyTimeout(5000);
+    $stmt = $conn->prepare("SELECT id, transaction_date, item, type, amount, account FROM transactions WHERE username = :username AND transaction_date >= :startdate AND transaction_date <= :enddate ORDER BY transaction_date ASC, id ASC");
     $startdate = date("Y-m-d", strtotime($_GET["startdate"]));
     $enddate = date("Y-m-d", strtotime($_GET["enddate"]));
-    $stmt->bind_param("sss", $_SESSION["username"], $startdate, $enddate);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    $stmt = $conn->prepare("SELECT id, account FROM money_accounts WHERE username = ? ORDER BY id ASC");
-    $stmt->bind_param("s", $_SESSION["username"]);
-    $stmt->execute();
-    $accounts = $stmt->get_result();
+    $stmt->bindValue(":username", $_SESSION["username"]);
+    $stmt->bindValue(":startdate", $startdate);
+    $stmt->bindValue(":enddate", $enddate);
+    $result = $stmt->execute();
+    $stmt = $conn->prepare("SELECT id, account FROM money_accounts WHERE username = :username ORDER BY id ASC");
+    $stmt->bindValue(":username", $_SESSION["username"]);
+    $accounts = $stmt->execute();
 ?>
 <script>
     $(document).ready(function(){
@@ -137,7 +134,7 @@
                             <select class="form-control" id="account">
                                 <option selected>All accounts</option>
                                 <?php
-                                    while($row = $accounts->fetch_assoc()){
+                                    while($row = $accounts->fetchArray()){
                                         echo "<option>" . $row["account"] . "</option>";
                                     }
                                 ?>
@@ -157,24 +154,21 @@
                     </thead>
                     <tbody>
                         <?php
-                            mysqli_data_seek($result, 0);
-                            while($row = $result->fetch_assoc()){
+                            while($row = $result->fetchArray()){
                                 echo "<tr style='cursor: pointer;' onclick=\"editTransaction('" . $row["id"] ."')\">";
-                                echo "<td>" . date("j-M-y", strtotime($row["date"])) . "</td>";
+                                echo "<td>" . date("j-M-y", strtotime($row["transaction_date"])) . "</td>";
                                 echo "<td>" . $row["item"] . "</td>";
                                 if($row["type"] == "Expense"){
-                                    echo "<td>" . $row["amount"] . "</td>";
+                                    echo "<td>" . number_format($row["amount"], 2, ".", "") . "</td>";
                                     echo "<td>-</td>";
                                 }
                                 if($row["type"] == "Income"){
                                     echo "<td>-</td>";
-                                    echo "<td>" . $row["amount"] . "</td>";
+                                    echo "<td>" . number_format($row["amount"], 2, ".", "") . "</td>";
                                 }
                                 echo "<td>" . $row["account"] . "</td>";
                                 echo "</tr>";
                             }
-                            $stmt->close();
-                            mysqli_close($conn);
                         ?>
                     </tbody>
                     <tfoot style="font-weight: bold;">
