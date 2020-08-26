@@ -3,7 +3,6 @@
     require "../config.php";
     require "../verifyAuth.php";
     $conn = new SQLite3(SQLITEFILE, SQLITE3_OPEN_READWRITE);
-    $conn->busyTimeout(5000);
     if($_SERVER["REQUEST_METHOD"] == "POST"){
         $stmt = $conn->prepare("DELETE from money_accounts WHERE id = :id");
         $stmt->bindValue(":id", $_POST["id"]);

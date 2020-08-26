@@ -3,7 +3,6 @@
     require "../config.php";
     require "../verifyAuth.php";
     $conn = new SQLite3(SQLITEFILE, SQLITE3_OPEN_READWRITE);
-    $conn->busyTimeout(5000);
     if($_SERVER["REQUEST_METHOD"] == "POST"){
         $stmt = $conn->prepare("UPDATE user_accounts SET balance_date = :balance_date WHERE username = :username");
         $date = date("Y-m-d", strtotime($_POST["date"]));

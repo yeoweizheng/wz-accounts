@@ -4,7 +4,6 @@
     require "../config.php";
     require "../verifyAuth.php";
     $conn = new SQLite3(SQLITEFILE, SQLITE3_OPEN_READWRITE);
-    $conn->busyTimeout(5000);
     if($_SERVER["REQUEST_METHOD"] == "POST"){
         ob_end_clean();
         header("Content-Type: text/csv");

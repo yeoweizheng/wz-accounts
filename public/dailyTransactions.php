@@ -3,7 +3,6 @@
     require "../config.php";
     require "../verifyAuth.php";
     $conn = new SQLite3(SQLITEFILE, SQLITE3_OPEN_READWRITE);
-    $conn->busyTimeout(5000);
     $stmt = $conn->prepare("SELECT id, item, type, amount, account FROM transactions WHERE username = :username AND transaction_date = :transaction_date ORDER BY id ASC");
     $transaction_date = date("Y-m-d", strtotime($_GET["date"]));
     $stmt->bindValue(":username", $_SESSION["username"]);

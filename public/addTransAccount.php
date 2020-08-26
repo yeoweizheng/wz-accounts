@@ -4,7 +4,6 @@
     require "../verifyAuth.php";
     if($_SERVER["REQUEST_METHOD"] == "POST"){
         $conn = new SQLite3(SQLITEFILE, SQLITE3_OPEN_READWRITE);
-        $conn->busyTimeout(5000);
         $stmt = $conn->prepare("INSERT INTO money_accounts (username, account) VALUES (:username, :account)");
         $stmt->bindValue(":username", $_SESSION["username"]);
         $stmt->bindValue(":account", htmlspecialchars($_POST["account"]));

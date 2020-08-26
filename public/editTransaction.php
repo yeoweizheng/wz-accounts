@@ -3,7 +3,6 @@
     require "../config.php";
     require "../verifyAuth.php";
     $conn = new SQLite3(SQLITEFILE, SQLITE3_OPEN_READWRITE);
-    $conn->busyTimeout(5000);
     if($_SERVER["REQUEST_METHOD"] == "POST"){
         echo $_POST["id"];
         echo $_POST["operation"];
