@@ -3,6 +3,7 @@
     require "../config.php";
     require "../verifyAuth.php";
     $conn = new SQLite3(SQLITEFILE, SQLITE3_OPEN_READWRITE);
+    $conn->exec(SQLITEPRAGMA);
     $stmt = $conn->prepare("SELECT id, transaction_date, item, type, amount, account FROM transactions WHERE username = :username AND transaction_date >= :startdate AND transaction_date <= :enddate ORDER BY transaction_date ASC, id ASC");
     $startdate = date("Y-m-d", strtotime($_GET["startdate"]));
     $enddate = date("Y-m-d", strtotime($_GET["enddate"]));

@@ -3,6 +3,7 @@
     require "../config.php";
     require "../verifyAuth.php";
     $conn = new SQLite3(SQLITEFILE, SQLITE3_OPEN_READWRITE);
+    $conn->exec(SQLITEPRAGMA);
     if($_SERVER["REQUEST_METHOD"] == "POST"){
         $err = 0;
         if($_POST["type"] == "Expense" || $_POST["type"] == "Both"){

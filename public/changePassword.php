@@ -9,6 +9,7 @@
             exit();
         }
         $conn = new SQLite3(SQLITEFILE, SQLITE3_OPEN_READWRITE);
+        $conn->exec(SQLITEPRAGMA);
         $stmt = $conn->prepare("SELECT username, password FROM user_accounts WHERE username = :username");
         $stmt->bindValue(":username", $_SESSION["username"]);
         $row = $stmt->execute()->fetchArray();
