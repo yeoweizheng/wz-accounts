@@ -48,12 +48,8 @@
         });
         $("#account").on("change", function(){
             var account = $("#account").val();
-            if(account == "All accounts"){
-                table.columns(4).search("").draw();
-            } else {
-                table.columns(4).search("");
-                table.columns(4).search("^" + account + "$", true, false).draw();
-            }
+            table.columns(4).search("");
+            table.columns(4).search("^" + account + "$", true, false).draw();
             sumFilteredRows();
         });
         function sumFilteredRows(){
@@ -132,7 +128,6 @@
                         </div>
                         <div class="col-xs-4" style="padding-left: 0px;">
                             <select class="form-control" id="account">
-                                <option selected>All accounts</option>
                                 <?php
                                     while($row = $accounts->fetchArray()){
                                         echo "<option>" . $row["account"] . "</option>";

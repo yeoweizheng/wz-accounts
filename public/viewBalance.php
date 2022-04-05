@@ -55,21 +55,29 @@
                     <?php
                         $stmt = $conn->prepare("SELECT balance_date FROM user_accounts WHERE username = :username");
                         $stmt->bindValue(":username", $_SESSION["username"]);
-                        $row = $stmt->execute()->fetchArray();
-                        $stmt = $conn->prepare("SELECT type, amount FROM transactions WHERE username = :username AND transaction_date >= :balance_date");
+                        $balance_date = $stmt->execute()->fetchArray()["balance_date"];
+                        $balances = array();
+                        $stmt = $conn->prepare("SELECT id, account FROM money_accounts WHERE username = :username ORDER BY id ASC");
                         $stmt->bindValue(":username", $_SESSION["username"]);
-                        $stmt->bindValue(":balance_date", $row["balance_date"]);
                         $result = $stmt->execute();
-                        $balance = 0;
+                        while($row = $result->fetchArray()){
+                            $balances[$row["account"]] = 0;
+                        }
+                        $stmt = $conn->prepare("SELECT type, amount, account FROM transactions WHERE username = :username AND transaction_date >= :balance_date");
+                        $stmt->bindValue(":username", $_SESSION["username"]);
+                        $stmt->bindValue(":balance_date", $balance_date);
+                        $result = $stmt->execute();
                         while($row = $result->fetchArray()){
                             if($row["type"] == "Income"){
-                                $balance = $balance + $row["amount"];
+                                $balances[$row["account"]] = $balances[$row["account"]] + $row["amount"];
                             }
                             if($row["type"] == "Expense"){
-                                $balance = $balance - $row["amount"];
+                                $balances[$row["account"]] = $balances[$row["account"]] - $row["amount"];
                             }
                         }
-                        echo "<h4 style='margin: 0px;'>" . number_format($balance, 2, ".", "") . "</h4>";
+                        foreach($balances as $account => $balance){
+                            echo "<h4 style='margin-top: 0.5em; margin-bottom: 0.5em'>" . $account . ": " . number_format($balance, 2, ".", "") . "</h5>";
+                        }
                     ?>
                 </div>
                     <div class="form-group">
