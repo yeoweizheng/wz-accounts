@@ -20,7 +20,7 @@
         $result = $stmt->execute();
         while($row = $result->fetchArray()){
             $row["item"] = htmlspecialchars_decode($row["item"]);
-            fputcsv($output, $row);
+            fputcsv($output, array($row["transaction_date"], $row["item"], $row["type"], $row["amount"], $row["account"]));
         }
         exit();
     }
