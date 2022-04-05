@@ -76,7 +76,7 @@
                             }
                         }
                         foreach($balances as $account => $balance){
-                            echo "<h4 style='margin-top: 0.5em; margin-bottom: 0.5em'>" . $account . ": " . number_format($balance, 2, ".", "") . "</h5>";
+                            echo "<h4 style='margin-top: 0.5em; margin-bottom: 0.5em'>" . $account . ": " . number_format($balance, 2, ".", "") . "</h4>";
                         }
                     ?>
                 </div>
