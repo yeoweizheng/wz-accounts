@@ -4,6 +4,17 @@
     require "../verifyAuth.php";
     $conn = new SQLite3(SQLITEFILE, SQLITE3_OPEN_READWRITE);
     $conn->exec(SQLITEPRAGMA);
+
+    $stmt = $conn->prepare("SELECT id, account FROM money_accounts WHERE username = :username ORDER BY id ASC");
+    $stmt->bindValue(":username", $_SESSION["username"]);
+    $result = $stmt->execute();
+    $accounts = array();
+    echo "<script>var accounts = [];</script>";
+    while($row = $result->fetchArray()){
+        echo "<script>accounts.push('" . $row["account"] . "');</script>";
+        array_push($accounts, $row["account"]);
+    }
+
     $stmt = $conn->prepare("SELECT id, transaction_date, item, type, amount, account FROM transactions WHERE username = :username AND transaction_date >= :startdate AND transaction_date <= :enddate ORDER BY transaction_date ASC, id ASC");
     $startdate = date("Y-m-d", strtotime($_GET["startdate"]));
     $enddate = date("Y-m-d", strtotime($_GET["enddate"]));
@@ -11,9 +22,6 @@
     $stmt->bindValue(":startdate", $startdate);
     $stmt->bindValue(":enddate", $enddate);
     $result = $stmt->execute();
-    $stmt = $conn->prepare("SELECT id, account FROM money_accounts WHERE username = :username ORDER BY id ASC");
-    $stmt->bindValue(":username", $_SESSION["username"]);
-    $accounts = $stmt->execute();
 ?>
 <script>
     $(document).ready(function(){
@@ -48,26 +56,39 @@
         });
         $("#account").on("change", function(){
             var account = $("#account").val();
-            table.columns(4).search("");
-            table.columns(4).search("^" + account + "$", true, false).draw();
+            if(account == "All accounts"){
+                table.columns(4).search("").draw();
+            } else {
+                table.columns(4).search("");
+                table.columns(4).search("^" + account + "$", true, false).draw();
+            }
             sumFilteredRows();
         });
         function sumFilteredRows(){
             var data = table.rows({filter: "applied"}).data();
-            var totalExpense = 0;
-            var totalIncome = 0;
+            var totalExpenses = {};
+            var totalIncomes = {};
+            var netTotals = {};
+            for(var account of accounts) {
+                totalExpenses[account] = 0;
+                totalIncomes[account] = 0;
+                netTotals[account] = 0;
+            }
             for(var i = 0; i < data.length; i++){
                 if(data[i][2] != "-") {
-                    totalExpense += parseFloat(data[i][2]);
+                    totalExpenses[data[i][4]] += parseFloat(data[i][2]);
+                    netTotals[data[i][4]] += parseFloat(data[i][2]);
                 } 
                 if(data[i][3] != "-") {
-                    totalIncome += parseFloat(data[i][3]);
+                    totalIncomes[data[i][4]] += parseFloat(data[i][3]);
+                    netTotals[data[i][4]] -= parseFloat(data[i][3]);
                 }
             }
-            var netTotal = totalExpense - totalIncome;
-            $("#totalExpense").html(totalExpense.toFixed(2));
-            $("#totalIncome").html(totalIncome.toFixed(2));
-            $("#netTotal").html(netTotal.toFixed(2));
+            for(var account of accounts) {
+                $("#totalExpense"+account).html(totalExpenses[account].toFixed(2));
+                $("#totalIncome"+account).html(totalIncomes[account].toFixed(2));
+                $("#netTotal"+account).html(netTotals[account].toFixed(2));
+            }
         }
         $("body").keydown(function(e){
             if(e.keyCode == 37){
@@ -128,9 +149,10 @@
                         </div>
                         <div class="col-xs-4" style="padding-left: 0px;">
                             <select class="form-control" id="account">
+                                <option selected>All accounts</option>
                                 <?php
-                                    while($row = $accounts->fetchArray()){
-                                        echo "<option>" . $row["account"] . "</option>";
+                                    foreach($accounts as $account){
+                                        echo "<option>" . $account . "</option>";
                                     }
                                 ?>
                             </select>
@@ -167,13 +189,17 @@
                         ?>
                     </tbody>
                     <tfoot style="font-weight: bold;">
-                        <tr>
-                            <td></td>
-                            <td>Total</td>
-                            <td id="totalExpense"></td>
-                            <td id="totalIncome"></td>
-                            <td id="netTotal"></td>
-                        </tr>
+                        <?php
+                            foreach($accounts as $account){
+                                echo "<tr>";
+                                echo "<td></td>";
+                                echo "<td style='text-align: right'>Total " . $account . "</td>";
+                                echo "<td id='totalExpense" . $account . "'></td>";
+                                echo "<td id='totalIncome" . $account . "'></td>";
+                                echo "<td id='netTotal" . $account . "'></td>";
+                                echo "</tr>";
+                            }
+                        ?>
                     </tfoot>
                 </table>
             </div>

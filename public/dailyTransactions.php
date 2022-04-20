@@ -4,6 +4,21 @@
     require "../verifyAuth.php";
     $conn = new SQLite3(SQLITEFILE, SQLITE3_OPEN_READWRITE);
     $conn->exec(SQLITEPRAGMA);
+
+    $stmt = $conn->prepare("SELECT id, account FROM money_accounts WHERE username = :username ORDER BY id ASC");
+    $stmt->bindValue(":username", $_SESSION["username"]);
+    $result = $stmt->execute();
+    $accounts = array();
+    $totalExpenses = array();
+    $totalIncomes = array();
+    $overallSums = array();
+    while($row = $result->fetchArray()){
+        array_push($accounts, $row["account"]);
+        $totalExpenses[$row["account"]] = 0;
+        $totalIncomes[$row["account"]] = 0;
+        $overallSums[$row["account"]] = 0;
+    }
+
     $stmt = $conn->prepare("SELECT id, item, type, amount, account FROM transactions WHERE username = :username AND transaction_date = :transaction_date ORDER BY id ASC");
     $transaction_date = date("Y-m-d", strtotime($_GET["date"]));
     $stmt->bindValue(":username", $_SESSION["username"]);
@@ -86,33 +101,32 @@
                     </thead>
                     <tbody>
                         <?php
-                            $totalExpense = 0;
-                            $totalIncome = 0;
-                            $overallSum = 0;
                             while($row = $result->fetchArray()){
                                 echo "<tr style='cursor: pointer;' onclick=\"editTransaction('" . $row["id"] ."')\">";
                                 echo "<td style='word-wrap: break-word;'>" . $row["item"] . "</td>";
                                 if($row["type"] == "Expense"){
                                     echo "<td>" . number_format($row["amount"], 2, ".", "") . "</td>";
                                     echo "<td>-</td>";
-                                    $totalExpense = $totalExpense + $row["amount"];
-                                    $overallSum = $overallSum + $row["amount"];
+                                    $totalExpenses[$row["account"]] = $totalExpenses[$row["account"]] + $row["amount"];
+                                    $overallSums[$row["account"]] = $overallSums[$row["account"]] + $row["amount"];
                                 }
                                 if($row["type"] == "Income"){
                                     echo "<td>-</td>";
                                     echo "<td>" . number_format($row["amount"], 2, ".", "") . "</td>";
-                                    $totalIncome = $totalIncome + $row["amount"];
-                                    $overallSum = $overallSum - $row["amount"];
+                                    $totalIncomes[$row["account"]] = $totalIncomes[$row["account"]] + $row["amount"];
+                                    $overallSums[$row["account"]] = $overallSums[$row["account"]] - $row["amount"];
                                 }
                                 echo "<td>" . $row["account"] . "</td>";
                                 echo "</tr>";
                             }
-                            echo "<tr style='font-weight: bold;'>";
-                            echo "<td>Total</td>";
-                            echo "<td>" . number_format($totalExpense, 2, ".", "") . "</td>";
-                            echo "<td>" . number_format($totalIncome, 2, ".", "") . "</td>";
-                            echo "<td>" . number_format($overallSum, 2, ".", "") . "</td>";
-                            echo "</tr>";
+                            foreach($accounts as $account){
+                                echo "<tr style='font-weight: bold;'>";
+                                echo "<td style='text-align:right'>Total ". $account ."</td>";
+                                echo "<td>" . number_format($totalExpenses[$account], 2, ".", "") . "</td>";
+                                echo "<td>" . number_format($totalIncomes[$account], 2, ".", "") . "</td>";
+                                echo "<td>" . number_format($overallSums[$account], 2, ".", "") . "</td>";
+                                echo "</tr>";
+                            }
                         ?>
                     </tbody>
                 </table>
