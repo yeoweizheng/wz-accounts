@@ -7,7 +7,7 @@
     $(document).ready(function(){
         $("#startdate").datetimepicker({
             <?php
-                if($_GET["startdate"] != ""){
+                if(isset($_GET["startdate"])){
                     echo "defaultDate: moment(\"" . date("j-M-y", strtotime($_GET["startdate"])) . "\", \"D-MMM-YY\").toDate(),";
                 } else {
                     echo "defaultDate: new Date(Date.now()),";
@@ -18,7 +18,7 @@
         });
         $("#enddate").datetimepicker({
             <?php
-                if($_GET["enddate"] != ""){
+                if(isset($_GET["enddate"])){
                     echo "defaultDate: moment(\"" . date("j-M-y", strtotime($_GET["enddate"])) . "\", \"D-MMM-YY\").toDate(),";
                 } else {
                     echo "defaultDate: new Date(Date.now()),";
