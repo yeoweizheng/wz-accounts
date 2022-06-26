@@ -5,8 +5,6 @@
     $conn = new SQLite3(SQLITEFILE, SQLITE3_OPEN_READWRITE);
     $conn->exec(SQLITEPRAGMA);
     if($_SERVER["REQUEST_METHOD"] == "POST"){
-        echo $_POST["id"];
-        echo $_POST["operation"];
         if($_POST["operation"] == "update"){
             $stmt = $conn->prepare("UPDATE transactions SET item = :item, type = :type, amount = :amount, account = :account WHERE id = :id");
             $stmt->bindValue(":item", htmlspecialchars($_POST["item"]));
@@ -30,7 +28,7 @@
             }
         }
         if($_POST["returnPage"] == "dailyTransactions") {
-            header("Location: dailyTransactions.php?date=" . $_POST["date"]);
+            header("Location: dailyTransactions.php?date=" . explode(" ", $_POST["date"])[0]);
         } else if($_POST["returnPage"] == "viewTransactions"){
             header("Location: viewTransactions.php?startdate=" . $_POST["startdate"] . "&enddate=" . $_POST["enddate"]);
         } else {
@@ -44,7 +42,7 @@
 ?>
 <script>
     $(document).ready(function(){
-        $("#date").val("<?php echo date("j-M-y", strtotime($row["transaction_date"])); ?>");
+        $("#date").val("<?php echo date("j-M-y (D)", strtotime($row["transaction_date"])); ?>");
         $("#item").val("<?php echo htmlspecialchars_decode($row["item"]); ?>");
         $("#type").val("<?php echo $row["type"]; ?>");
         $("#amount").val("<?php echo $row["amount"]; ?>");

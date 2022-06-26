@@ -29,11 +29,11 @@
     $(document).ready(function(){
         $("#date").datetimepicker({
             defaultDate: moment("<?php echo $_GET["date"]; ?>", "D-MMM-YY").toDate(),
-            format: "D-MMM-YY",
+            format: "D-MMM-YY (ddd)",
             ignoreReadonly: true
         });
         $("#date").on("dp.change", function(e){
-            goto("dailyTransactions.php?date=" + $("#date").val());
+            goto("dailyTransactions.php?date=" + $("#date").val().split(" ")[0]);
         });
         $("body").keydown(function(e){
             if(e.keyCode == 37){

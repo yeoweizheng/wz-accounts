@@ -173,7 +173,7 @@
                         <?php
                             while($row = $result->fetchArray()){
                                 echo "<tr style='cursor: pointer;' onclick=\"editTransaction('" . $row["id"] ."')\">";
-                                echo "<td>" . date("j-M-y", strtotime($row["transaction_date"])) . "</td>";
+                                echo "<td>" . date("j-M-y (D)", strtotime($row["transaction_date"])) . "</td>";
                                 echo "<td>" . $row["item"] . "</td>";
                                 if($row["type"] == "Expense"){
                                     echo "<td>" . number_format($row["amount"], 2, ".", "") . "</td>";

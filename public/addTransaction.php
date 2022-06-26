@@ -6,10 +6,11 @@
     $conn->exec(SQLITEPRAGMA);
     if($_SERVER["REQUEST_METHOD"] == "POST"){
         $err = 0;
+        $input_date = explode(" ", $_POST["date"])[0];
+        $transaction_date = date("Y-m-d", strtotime($input_date));
         if($_POST["type"] == "Expense" || $_POST["type"] == "Both"){
             $stmt = $conn->prepare("INSERT INTO transactions (username, type, item, amount, account, transaction_date) VALUES (:username, :type, :item, :amount, :account, :transaction_date)");
             $type = "Expense";
-            $transaction_date = date("Y-m-d", strtotime($_POST["date"]));
             $stmt->bindValue(":username", $_SESSION["username"]);
             $stmt->bindValue(":type", $type);
             $stmt->bindValue(":item", htmlspecialchars($_POST["item"]));
@@ -21,7 +22,6 @@
         if($_POST["type"] == "Income" || $_POST["type"] == "Both"){
             $stmt = $conn->prepare("INSERT INTO transactions (username, `type`, item, amount, account, transaction_date) VALUES (:username, :type, :item, :amount, :account, :transaction_date)");
             $type = "Income";
-            $transaction_date = date("Y-m-d", strtotime($_POST["date"]));
             $stmt->bindValue(":username", $_SESSION["username"]);
             $stmt->bindValue(":type", $type);
             $stmt->bindValue(":item", htmlspecialchars($_POST["item"]));
@@ -35,15 +35,15 @@
         } else {
             $_SESSION["errorAlert"] = "Failed to add transaction";
         }
-        header("Location: addTransaction.php");
+        header("Location: addTransaction.php?date=" . $input_date);
         exit();
     }
 ?>
 <script>
     $(document).ready(function(){
         $("#date").datetimepicker({
-            defaultDate: new Date(Date.now()),
-            format: "D-MMM-YY",
+            defaultDate: moment("<?php echo isset($_GET['date']) ? $_GET['date'] : date('j-M-y') ?>", "D-MMM-YY").toDate(),
+            format: "D-MMM-YY (ddd)",
             ignoreReadonly: true
         });
         $("#type").change(function(){
