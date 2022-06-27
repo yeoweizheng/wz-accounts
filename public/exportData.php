@@ -12,8 +12,8 @@
         $output = fopen("php://output", "w");
         fputcsv($output, array("Date", "Item", "Type", "Amount", "Account"));
         $stmt = $conn->prepare("SELECT transaction_date, item, type, amount, account FROM transactions WHERE username = :username AND transaction_date >= :startdate AND transaction_date <= :enddate ORDER BY transaction_date ASC");
-        $startdate = date("Y-m-d", strtotime($_POST["startdate"]));
-        $enddate = date("Y-m-d", strtotime($_POST["enddate"]));
+        $startdate = date("Y-m-d", strtotime(explode(" ", $_POST["startdate"])[0]));
+        $enddate = date("Y-m-d", strtotime(explode(" ", $_POST["enddate"])[0]));
         $stmt->bindValue(":username", $_SESSION["username"]);
         $stmt->bindValue(":startdate", $startdate);
         $stmt->bindValue(":enddate", $enddate);
@@ -29,12 +29,12 @@
     $(document).ready(function(){
         $("#startdate").datetimepicker({
             defaultDate: new Date(Date.now()),
-            format: "D-MMM-YY",
+            format: "D-MMM-YY (ddd)",
             ignoreReadonly: true
         });
         $("#enddate").datetimepicker({
             defaultDate: new Date(Date.now()),
-            format: "D-MMM-YY",
+            format: "D-MMM-YY (ddd)",
             ignoreReadonly: true
         });
     });

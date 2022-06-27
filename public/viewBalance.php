@@ -6,7 +6,7 @@
     $conn->exec(SQLITEPRAGMA);
     if($_SERVER["REQUEST_METHOD"] == "POST"){
         $stmt = $conn->prepare("UPDATE user_accounts SET balance_date = :balance_date WHERE username = :username");
-        $date = date("Y-m-d", strtotime($_POST["date"]));
+        $date = date("Y-m-d", strtotime(explode(" ", $_POST["date"])[0]));
         $stmt->bindValue(":balance_date", $date);
         $stmt->bindValue(":username", $_SESSION["username"]);
         $stmt->execute();
@@ -21,7 +21,7 @@
     $(document).ready(function(){
         $("#date").datetimepicker({
             defaultDate: moment("<?php echo $row['balance_date']; ?>", "YYYY-MM-DD").toDate(),
-            format: "D-MMM-YY",
+            format: "D-MMM-YY (ddd)",
             ignoreReadonly: true
         });
         $("#date").on("dp.change", function(e){
@@ -29,11 +29,11 @@
         });
     });
     function next(){
-        $("#date").val(moment($("#date").val(), "D-MMM-YY").add(1, "day").format("D-MMM-YY"));
+        $("#date").val(moment($("#date").val(), "D-MMM-YY").add(1, "day").format("D-MMM-YY (ddd)"));
         $("#dateForm").submit();
     }
     function prev(){
-        $("#date").val(moment($("#date").val(), "D-MMM-YY").subtract(1, "day").format("D-MMM-YY"));
+        $("#date").val(moment($("#date").val(), "D-MMM-YY").subtract(1, "day").format("D-MMM-YY (ddd)"));
         $("#dateForm").submit();
     }
 </script>

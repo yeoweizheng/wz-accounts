@@ -13,7 +13,7 @@
                     echo "defaultDate: new Date(Date.now()),";
                 }
             ?>
-            format: "D-MMM-YY",
+            format: "D-MMM-YY (ddd)",
             ignoreReadonly: true
         });
         $("#enddate").datetimepicker({
@@ -24,10 +24,15 @@
                     echo "defaultDate: new Date(Date.now()),";
                 }
             ?>
-            format: "D-MMM-YY",
+            format: "D-MMM-YY (ddd)",
             ignoreReadonly: true
         });
     });
+    function viewTransactions() {
+        let startdate = $("#startdate").val().split(" ")[0];
+        let enddate = $("#enddate").val().split(" ")[0];
+        window.location.href = "/viewTransactions.php?startdate=" + startdate + "&enddate=" + enddate;
+    }
 </script>
 <body>
     <div class="container">
@@ -43,22 +48,20 @@
             </div>
             <div class="panel-body">
                 <?php require "../alerts.php" ?>
-                <form class="form-horizontal" style="padding: 0px 10px;" id="filterTrans" method="GET" action="viewTransactions.php">
-                    <div class="form-group">
-                        <label> Start / End Dates: </label>
-                        <div class="row">
-                            <div class="col-xs-6" style="padding-right: 0px;">
-                                <input readonly class="form-control" type="text" name="startdate" id="startdate" style="background: white;" required></input>
-                            </div>
-                            <div class="col-xs-6" style="padding-left: 0px;">
-                                <input readonly class="form-control" type="text" name="enddate" id="enddate" style="background: white;" required></input>
-                            </div>
+                <div class="form-group">
+                    <label> Start / End Dates: </label>
+                    <div class="row">
+                        <div class="col-xs-6" style="padding-right: 0px;">
+                            <input readonly class="form-control" type="text" name="startdate" id="startdate" style="background: white;" required></input>
+                        </div>
+                        <div class="col-xs-6" style="padding-left: 0px;">
+                            <input readonly class="form-control" type="text" name="enddate" id="enddate" style="background: white;" required></input>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <button class="btn btn-primary btn-block" type="submit">Search</button>
-                    </div>
-                </form>
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-primary btn-block" onclick="viewTransactions()">Search</button>
+                </div>
             </div>
             <?php require "../panelFooter.php"; ?>
         </div>
