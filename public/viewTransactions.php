@@ -106,7 +106,7 @@
         });
     });
     function editTransaction(id){
-        goto("editTransaction.php?id=" + id + "&returnPage=viewTransactions&startdate=<?php echo date("j-M-y", strtotime($_GET["startdate"])) ?>&enddate=<?php echo date("j-M-y", strtotime($_GET["enddate"])) ?>");
+        goto("editTransaction.php?id=" + id + "&returnPage=viewTransactions&startdate=<?php echo date("j-M-Y", strtotime($_GET["startdate"])) ?>&enddate=<?php echo date("j-M-Y", strtotime($_GET["enddate"])) ?>");
     }
 </script>
 <style>
@@ -125,7 +125,7 @@
     <div class="container">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <button class="btn btn-default btn-sm pull-left" style="margin-top: 5px;" onclick="goto('/filterTransactions.php?startdate=<?php echo date("j-M-y", strtotime($_GET["startdate"])); ?>&enddate=<?php echo date("j-M-y", strtotime($_GET["enddate"])); ?>');">
+                <button class="btn btn-default btn-sm pull-left" style="margin-top: 5px;" onclick="goto('/filterTransactions.php?startdate=<?php echo date("j-M-Y", strtotime($_GET["startdate"])); ?>&enddate=<?php echo date("j-M-Y", strtotime($_GET["enddate"])); ?>');">
                     <span class="glyphicon glyphicon-chevron-left"></span>
                 </button>
                 <button class="btn btn-default btn-sm pull-right" style="margin-top: 5px;" onclick="goto('/');">
@@ -173,7 +173,7 @@
                         <?php
                             while($row = $result->fetchArray()){
                                 echo "<tr style='cursor: pointer;' onclick=\"editTransaction('" . $row["id"] ."')\">";
-                                echo "<td>" . date("j-M-y (D)", strtotime($row["transaction_date"])) . "</td>";
+                                echo "<td>" . date("j-M-Y (D)", strtotime($row["transaction_date"])) . "</td>";
                                 echo "<td>" . $row["item"] . "</td>";
                                 if($row["type"] == "Expense"){
                                     echo "<td>" . number_format($row["amount"], 2, ".", "") . "</td>";

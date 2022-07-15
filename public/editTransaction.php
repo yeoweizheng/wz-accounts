@@ -42,7 +42,7 @@
 ?>
 <script>
     $(document).ready(function(){
-        $("#date").val("<?php echo date("j-M-y (D)", strtotime($row["transaction_date"])); ?>");
+        $("#date").val("<?php echo date("j-M-Y (D)", strtotime($row["transaction_date"])); ?>");
         $("#item").val("<?php echo htmlspecialchars_decode($row["item"]); ?>");
         $("#type").val("<?php echo $row["type"]; ?>");
         $("#amount").val("<?php echo $row["amount"]; ?>");
@@ -63,9 +63,9 @@
             <div class="panel-heading">
                 <?php
                     if($_GET["returnPage"] == "dailyTransactions"){
-                        echo "<button class=\"btn btn-default btn-sm pull-left\" style=\"margin-top: 5px;\" onclick=\"goto('dailyTransactions.php?date=" . date("j-M-y", strtotime($row["transaction_date"])) . "')\">";
+                        echo "<button class=\"btn btn-default btn-sm pull-left\" style=\"margin-top: 5px;\" onclick=\"goto('dailyTransactions.php?date=" . date("j-M-Y", strtotime($row["transaction_date"])) . "')\">";
                     } else {
-                        echo "<button class=\"btn btn-default btn-sm pull-left\" style=\"margin-top: 5px;\" onclick=\"goto('viewTransactions.php?startdate=" . date("j-M-y", strtotime($_GET["startdate"])) . "&enddate=" . date("j-M-y", strtotime($_GET["enddate"])) . "')\">";
+                        echo "<button class=\"btn btn-default btn-sm pull-left\" style=\"margin-top: 5px;\" onclick=\"goto('viewTransactions.php?startdate=" . date("j-M-Y", strtotime($_GET["startdate"])) . "&enddate=" . date("j-M-Y", strtotime($_GET["enddate"])) . "')\">";
                     }
                 ?>
                     <span class="glyphicon glyphicon-chevron-left"></span>

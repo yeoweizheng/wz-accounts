@@ -21,7 +21,7 @@
     $(document).ready(function(){
         $("#date").datetimepicker({
             defaultDate: moment("<?php echo $row['balance_date']; ?>", "YYYY-MM-DD").toDate(),
-            format: "D-MMM-YY (ddd)",
+            format: "D-MMM-YYYY (ddd)",
             ignoreReadonly: true
         });
         $("#date").on("dp.change", function(e){
@@ -29,11 +29,11 @@
         });
     });
     function next(){
-        $("#date").val(moment($("#date").val(), "D-MMM-YY").add(1, "day").format("D-MMM-YY (ddd)"));
+        $("#date").val(moment($("#date").val(), "D-MMM-YYYY").add(1, "day").format("D-MMM-YYYY (ddd)"));
         $("#dateForm").submit();
     }
     function prev(){
-        $("#date").val(moment($("#date").val(), "D-MMM-YY").subtract(1, "day").format("D-MMM-YY (ddd)"));
+        $("#date").val(moment($("#date").val(), "D-MMM-YYYY").subtract(1, "day").format("D-MMM-YYYY (ddd)"));
         $("#dateForm").submit();
     }
 </script>

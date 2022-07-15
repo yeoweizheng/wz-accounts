@@ -29,12 +29,12 @@
     $(document).ready(function(){
         $("#startdate").datetimepicker({
             defaultDate: new Date(Date.now()),
-            format: "D-MMM-YY (ddd)",
+            format: "D-MMM-YYYY (ddd)",
             ignoreReadonly: true
         });
         $("#enddate").datetimepicker({
             defaultDate: new Date(Date.now()),
-            format: "D-MMM-YY (ddd)",
+            format: "D-MMM-YYYY (ddd)",
             ignoreReadonly: true
         });
     });

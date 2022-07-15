@@ -8,23 +8,23 @@
         $("#startdate").datetimepicker({
             <?php
                 if(isset($_GET["startdate"])){
-                    echo "defaultDate: moment(\"" . date("j-M-y", strtotime($_GET["startdate"])) . "\", \"D-MMM-YY\").toDate(),";
+                    echo "defaultDate: moment(\"" . date("j-M-Y", strtotime($_GET["startdate"])) . "\", \"D-MMM-YYYY\").toDate(),";
                 } else {
                     echo "defaultDate: new Date(Date.now()),";
                 }
             ?>
-            format: "D-MMM-YY (ddd)",
+            format: "D-MMM-YYYY (ddd)",
             ignoreReadonly: true
         });
         $("#enddate").datetimepicker({
             <?php
                 if(isset($_GET["enddate"])){
-                    echo "defaultDate: moment(\"" . date("j-M-y", strtotime($_GET["enddate"])) . "\", \"D-MMM-YY\").toDate(),";
+                    echo "defaultDate: moment(\"" . date("j-M-Y", strtotime($_GET["enddate"])) . "\", \"D-MMM-YYYY\").toDate(),";
                 } else {
                     echo "defaultDate: new Date(Date.now()),";
                 }
             ?>
-            format: "D-MMM-YY (ddd)",
+            format: "D-MMM-YYYY (ddd)",
             ignoreReadonly: true
         });
     });

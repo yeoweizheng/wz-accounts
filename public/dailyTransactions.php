@@ -28,8 +28,8 @@
 <script>
     $(document).ready(function(){
         $("#date").datetimepicker({
-            defaultDate: moment("<?php echo $_GET["date"]; ?>", "D-MMM-YY").toDate(),
-            format: "D-MMM-YY (ddd)",
+            defaultDate: moment("<?php echo $_GET["date"]; ?>", "D-MMM-YYYY").toDate(),
+            format: "D-MMM-YYYY (ddd)",
             ignoreReadonly: true
         });
         $("#date").on("dp.change", function(e){
@@ -54,10 +54,10 @@
         goto('editTransaction.php?id=' + id + "&returnPage=dailyTransactions");
     }
     function next(){
-        goto("dailyTransactions.php?date=" + moment($("#date").val(), "D-MMM-YY").add(1, "day").format("D-MMM-YY"));
+        goto("dailyTransactions.php?date=" + moment($("#date").val(), "D-MMM-YYYY").add(1, "day").format("D-MMM-YYYY"));
     }
     function prev(){
-        goto("dailyTransactions.php?date=" + moment($("#date").val(), "D-MMM-YY").subtract(1, "day").format("D-MMM-YY"));
+        goto("dailyTransactions.php?date=" + moment($("#date").val(), "D-MMM-YYYY").subtract(1, "day").format("D-MMM-YYYY"));
     }
 </script>
 <body>

@@ -42,8 +42,8 @@
 <script>
     $(document).ready(function(){
         $("#date").datetimepicker({
-            defaultDate: moment("<?php echo isset($_GET['date']) ? $_GET['date'] : date('j-M-y') ?>", "D-MMM-YY").toDate(),
-            format: "D-MMM-YY (ddd)",
+            defaultDate: moment("<?php echo isset($_GET['date']) ? $_GET['date'] : date('j-M-Y') ?>", "D-MMM-YYYY").toDate(),
+            format: "D-MMM-YYYY (ddd)",
             ignoreReadonly: true
         });
         $("#type").change(function(){
