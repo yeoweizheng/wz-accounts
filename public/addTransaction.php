@@ -41,8 +41,10 @@
 ?>
 <script>
     $(document).ready(function(){
+        let searchParams = new URLSearchParams(window.location.search);
+        let defaultDate = searchParams.has("date")? moment(searchParams.get("date"), "D-MMM-YYYY") : new Date();
         $("#date").datetimepicker({
-            defaultDate: moment("<?php echo isset($_GET['date']) ? $_GET['date'] : date('j-M-Y') ?>", "D-MMM-YYYY").toDate(),
+            defaultDate: defaultDate,
             format: "D-MMM-YYYY (ddd)",
             ignoreReadonly: true
         });
