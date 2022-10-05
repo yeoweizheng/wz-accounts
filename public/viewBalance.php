@@ -68,6 +68,9 @@
                         $stmt->bindValue(":balance_date", $balance_date);
                         $result = $stmt->execute();
                         while($row = $result->fetchArray()){
+                            if(!array_key_exists($row["account"], $balances)){
+                                $balances[$row["account"]] = 0;
+                            }
                             if($row["type"] == "Income"){
                                 $balances[$row["account"]] = $balances[$row["account"]] + $row["amount"];
                             }

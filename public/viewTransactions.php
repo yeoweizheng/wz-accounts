@@ -4,17 +4,7 @@
     require "../verifyAuth.php";
     $conn = new SQLite3(SQLITEFILE, SQLITE3_OPEN_READWRITE);
     $conn->exec(SQLITEPRAGMA);
-
-    $stmt = $conn->prepare("SELECT id, account FROM money_accounts WHERE username = :username ORDER BY id ASC");
-    $stmt->bindValue(":username", $_SESSION["username"]);
-    $result = $stmt->execute();
     $accounts = array();
-    echo "<script>var accounts = [];</script>";
-    while($row = $result->fetchArray()){
-        echo "<script>accounts.push('" . $row["account"] . "');</script>";
-        array_push($accounts, $row["account"]);
-    }
-
     $stmt = $conn->prepare("SELECT id, transaction_date, item, type, amount, account FROM transactions WHERE username = :username AND transaction_date >= :startdate AND transaction_date <= :enddate ORDER BY transaction_date ASC, id ASC");
     $startdate = date("Y-m-d", strtotime($_GET["startdate"]));
     $enddate = date("Y-m-d", strtotime($_GET["enddate"]));
@@ -172,6 +162,9 @@
                     <tbody>
                         <?php
                             while($row = $result->fetchArray()){
+                                if(!in_array($row["account"], $accounts)){
+                                    array_push($accounts, $row["account"]);
+                                }
                                 echo "<tr style='cursor: pointer;' onclick=\"editTransaction('" . $row["id"] ."')\">";
                                 echo "<td>" . date("j-M-Y (D)", strtotime($row["transaction_date"])) . "</td>";
                                 echo "<td>" . $row["item"] . "</td>";
@@ -203,6 +196,12 @@
                     </tfoot>
                 </table>
             </div>
+            <?php
+                echo "<script>var accounts = [];</script>";
+                foreach($accounts as $account){
+                    echo "<script>accounts.push('" . $account . "');</script>";
+                }
+            ?>
             <?php require "../panelFooter.php"; ?>
         </div>
     </div>

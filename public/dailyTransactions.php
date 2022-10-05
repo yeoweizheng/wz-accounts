@@ -4,21 +4,10 @@
     require "../verifyAuth.php";
     $conn = new SQLite3(SQLITEFILE, SQLITE3_OPEN_READWRITE);
     $conn->exec(SQLITEPRAGMA);
-
-    $stmt = $conn->prepare("SELECT id, account FROM money_accounts WHERE username = :username ORDER BY id ASC");
-    $stmt->bindValue(":username", $_SESSION["username"]);
-    $result = $stmt->execute();
     $accounts = array();
     $totalExpenses = array();
     $totalIncomes = array();
     $overallSums = array();
-    while($row = $result->fetchArray()){
-        array_push($accounts, $row["account"]);
-        $totalExpenses[$row["account"]] = 0;
-        $totalIncomes[$row["account"]] = 0;
-        $overallSums[$row["account"]] = 0;
-    }
-
     $stmt = $conn->prepare("SELECT id, item, type, amount, account FROM transactions WHERE username = :username AND transaction_date = :transaction_date ORDER BY id ASC");
     $transaction_date = date("Y-m-d", strtotime($_GET["date"]));
     $stmt->bindValue(":username", $_SESSION["username"]);
@@ -104,6 +93,12 @@
                             while($row = $result->fetchArray()){
                                 echo "<tr style='cursor: pointer;' onclick=\"editTransaction('" . $row["id"] ."')\">";
                                 echo "<td style='word-wrap: break-word;'>" . $row["item"] . "</td>";
+                                if(!in_array($row["account"], $accounts)) {
+                                    array_push($accounts, $row["account"]);
+                                    $totalExpenses[$row["account"]] = 0;
+                                    $totalIncomes[$row["account"]] = 0;
+                                    $overallSums[$row["account"]] = 0;
+                                }
                                 if($row["type"] == "Expense"){
                                     echo "<td>" . number_format($row["amount"], 2, ".", "") . "</td>";
                                     echo "<td>-</td>";
