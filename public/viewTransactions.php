@@ -138,14 +138,7 @@
                             </select>
                         </div>
                         <div class="col-xs-4" style="padding-left: 0px;">
-                            <select class="form-control" id="account">
-                                <option selected>All accounts</option>
-                                <?php
-                                    foreach($accounts as $account){
-                                        echo "<option>" . $account . "</option>";
-                                    }
-                                ?>
-                            </select>
+                            <select class="form-control" id="account"></select>
                         </div>
                     </div>
                 </div>
@@ -202,6 +195,13 @@
                     echo "<script>accounts.push('" . $account . "');</script>";
                 }
             ?>
+            <script>
+                let accountOptionsHtml = "<option selected>All accounts</option>";
+                for(let account of accounts) {
+                    accountOptionsHtml += `<option>${account}</option>`;
+                }
+                $("#account").html(accountOptionsHtml);
+            </script>
             <?php require "../panelFooter.php"; ?>
         </div>
     </div>
