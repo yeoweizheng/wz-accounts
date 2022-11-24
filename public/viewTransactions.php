@@ -14,6 +14,7 @@
     $result = $stmt->execute();
 ?>
 <script>
+    var item;
     $(document).ready(function(){
         $.fn.dataTable.ext.pager.numbers_length = 5;
         var table = $("#transactionsTable").DataTable({
@@ -26,7 +27,8 @@
         });
         sumFilteredRows();
         $("#item").on("keyup", function(){
-            var item = $("#item").val();
+            if(item == $("#item").val() || (!item && !$("#item").val())) return;
+            item = $("#item").val();
             table.columns(1).search(item).draw();
             sumFilteredRows();
         });
@@ -81,6 +83,7 @@
             }
         }
         $("body").keydown(function(e){
+            if($("#item").is(":focus")) return;
             if(e.keyCode == 37){
                 $(".paginate_button.previous").click();
             }

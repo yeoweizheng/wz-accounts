@@ -6,7 +6,7 @@
 <script>
     $(document).ready(function(){
         let searchParams = new URLSearchParams(window.location.search);
-        let startDate = searchParams.has("startdate")? moment(searchParams.get("startdate"), "D-MMM-YYYY") : new Date();
+        let startDate = searchParams.has("startdate")? moment(searchParams.get("startdate"), "D-MMM-YYYY") : moment().subtract("months", 1);
         let endDate = searchParams.has("enddate")? moment(searchParams.get("enddate"), "D-MMM-YYYY") : new Date();
         $("#startdate").datetimepicker({
             defaultDate: startDate,
