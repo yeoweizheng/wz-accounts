@@ -57,12 +57,6 @@
                         $stmt->bindValue(":username", $_SESSION["username"]);
                         $balance_date = $stmt->execute()->fetchArray()["balance_date"];
                         $balances = array();
-                        $stmt = $conn->prepare("SELECT id, account FROM money_accounts WHERE username = :username ORDER BY id ASC");
-                        $stmt->bindValue(":username", $_SESSION["username"]);
-                        $result = $stmt->execute();
-                        while($row = $result->fetchArray()){
-                            $balances[$row["account"]] = 0;
-                        }
                         $stmt = $conn->prepare("SELECT type, amount, account FROM transactions WHERE username = :username AND transaction_date >= :balance_date");
                         $stmt->bindValue(":username", $_SESSION["username"]);
                         $stmt->bindValue(":balance_date", $balance_date);
