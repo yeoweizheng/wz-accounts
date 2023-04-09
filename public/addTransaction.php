@@ -35,7 +35,7 @@
         } else {
             $_SESSION["errorAlert"] = "Failed to add transaction";
         }
-        header("Location: addTransaction.php?date=" . $input_date);
+        header("Location: addTransaction.php?returnPage=" . $_POST["returnPage"] . "&date=" . $input_date);
         exit();
     }
 ?>
@@ -43,11 +43,20 @@
     $(document).ready(function(){
         let searchParams = new URLSearchParams(window.location.search);
         let defaultDate = searchParams.has("date")? moment(searchParams.get("date"), "D-MMM-YYYY") : new Date();
-        $("#date").datetimepicker({
-            defaultDate: defaultDate,
-            format: "D-MMM-YYYY (ddd)",
-            ignoreReadonly: true
-        });
+        <?php
+            if($_GET['returnPage'] == 'mainMenu') {
+                echo <<<EOL
+                $("#date").datetimepicker({
+                    defaultDate: defaultDate,
+                    format: "D-MMM-YYYY (ddd)",
+                    ignoreReadonly: true
+                });
+                $("#date").css("background", "white");
+                EOL;
+            } else if($_GET['returnPage'] == 'dailyTransactions') {
+                echo '$("#date").val("' . date("j-M-Y (D)", strtotime($_GET['date'])) . '");';
+            }
+        ?>
         $("#type").change(function(){
             var optionSelected = $("#type option:selected").text().toString();
             if(optionSelected == "Expense"){
@@ -75,7 +84,13 @@
     <div class="container">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <button class="btn btn-default btn-sm pull-left" style="margin-top: 5px;" onclick="goto('/');">
+                <?php
+                if($_GET["returnPage"] == "mainMenu"){
+                    echo '<button class="btn btn-default btn-sm pull-left" style="margin-top: 5px;" onclick="goto(\'/\');">';
+                } else if($_GET["returnPage"] == "dailyTransactions"){
+                    echo '<button class="btn btn-default btn-sm pull-left" style="margin-top: 5px;" onclick="goto(\'dailyTransactions.php?date=' . explode(" ", $_GET["date"])[0] . '\');">';
+                }
+                ?>
                     <span class="glyphicon glyphicon-chevron-left"></span>
                 </button>
                 <button class="btn btn-default btn-sm pull-right" style="margin-top: 5px;" onclick="goto('/');">
@@ -86,11 +101,12 @@
             <div class="panel-body">
                 <?php require "../alerts.php" ?>
                 <form class="form-horizontal" style="padding: 0px 10px;" id="addTransaction" method="POST">
+                    <input type="hidden" name="returnPage" value="<?php echo $_GET["returnPage"] ?>">
                     <div class="form-group">
                         <label> Date: </label>
                         <div class="row">
                             <div class="col-xs-12">
-                                <input readonly class="form-control" type="text" name="date" id="date" style="background: white;" required></input>
+                                <input readonly class="form-control" type="text" name="date" id="date" required></input>
                             </div>
                         </div>
                     </div>

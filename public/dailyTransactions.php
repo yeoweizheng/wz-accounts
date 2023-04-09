@@ -125,6 +125,9 @@
                         ?>
                     </tbody>
                 </table>
+                <div class="form-group">
+                    <button class="btn btn-primary btn-block" onclick="goto('addTransaction.php?returnPage=dailyTransactions&date=' + $('#date').val().split(' ')[0])">Add Transaction</button>
+                </div>
             </div>
             <?php require "../panelFooter.php"; ?>
         </div>
