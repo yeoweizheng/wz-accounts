@@ -5,12 +5,13 @@
     $conn = new SQLite3(SQLITEFILE, SQLITE3_OPEN_READWRITE);
     $conn->exec(SQLITEPRAGMA);
     $accounts = array();
-    $stmt = $conn->prepare("SELECT id, transaction_date, item, type, amount, account FROM transactions WHERE username = :username AND transaction_date >= :startdate AND transaction_date <= :enddate ORDER BY transaction_date ASC, id ASC");
+    $stmt = $conn->prepare("SELECT id, transaction_date, item, type, amount, account FROM transactions WHERE username = :username AND transaction_date >= :startdate AND transaction_date <= :enddate AND item LIKE :searchTerm ORDER BY transaction_date ASC, id ASC");
     $startdate = date("Y-m-d", strtotime($_GET["startdate"]));
     $enddate = date("Y-m-d", strtotime($_GET["enddate"]));
     $stmt->bindValue(":username", $_SESSION["username"]);
     $stmt->bindValue(":startdate", $startdate);
     $stmt->bindValue(":enddate", $enddate);
+    $stmt->bindValue(":searchTerm", "%".$_GET["searchTerm"]."%");
     $result = $stmt->execute();
 ?>
 <script>
@@ -99,7 +100,7 @@
         });
     });
     function editTransaction(id){
-        goto("editTransaction.php?id=" + id + "&returnPage=viewTransactions&startdate=<?php echo date("j-M-Y", strtotime($_GET["startdate"])) ?>&enddate=<?php echo date("j-M-Y", strtotime($_GET["enddate"])) ?>");
+        goto("editTransaction.php?id=" + id + "&returnPage=viewTransactions&startdate=<?php echo date("j-M-Y", strtotime($_GET["startdate"])) ?>&enddate=<?php echo date("j-M-Y", strtotime($_GET["enddate"])) ?>&searchTerm=<?php echo $_GET["searchTerm"]?>");
     }
 </script>
 <style>

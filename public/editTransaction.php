@@ -30,7 +30,7 @@
         if($_POST["returnPage"] == "dailyTransactions") {
             header("Location: dailyTransactions.php?date=" . explode(" ", $_POST["date"])[0]);
         } else if($_POST["returnPage"] == "viewTransactions"){
-            header("Location: viewTransactions.php?startdate=" . $_POST["startdate"] . "&enddate=" . $_POST["enddate"]);
+            header("Location: viewTransactions.php?startdate=" . $_POST["startdate"] . "&enddate=" . $_POST["enddate"] . "&searchTerm=" . $_POST["searchTerm"]);
         } else {
             header("Location: /");
         }
@@ -65,7 +65,7 @@
                     if($_GET["returnPage"] == "dailyTransactions"){
                         echo "<button class=\"btn btn-default btn-sm pull-left\" style=\"margin-top: 5px;\" onclick=\"goto('dailyTransactions.php?date=" . date("j-M-Y", strtotime($row["transaction_date"])) . "')\">";
                     } else {
-                        echo "<button class=\"btn btn-default btn-sm pull-left\" style=\"margin-top: 5px;\" onclick=\"goto('viewTransactions.php?startdate=" . date("j-M-Y", strtotime($_GET["startdate"])) . "&enddate=" . date("j-M-Y", strtotime($_GET["enddate"])) . "')\">";
+                        echo "<button class=\"btn btn-default btn-sm pull-left\" style=\"margin-top: 5px;\" onclick=\"goto('viewTransactions.php?startdate=" . date("j-M-Y", strtotime($_GET["startdate"])) . "&enddate=" . date("j-M-Y", strtotime($_GET["enddate"])) . "&searchTerm=" . $_GET["searchTerm"] . "')\">";
                     }
                 ?>
                     <span class="glyphicon glyphicon-chevron-left"></span>
@@ -79,6 +79,7 @@
                 <?php require "../alerts.php" ?>
                 <form class="form-horizontal" style="padding: 0px 10px;" id="editForm" method="POST">
                     <input type="hidden" name="returnPage" value="<?php echo $_GET["returnPage"] ?>">
+                    <input type="hidden" name="searchTerm" value="<?php echo $_GET["searchTerm"] ?>">
                     <?php
                         if($_GET["returnPage"] == "viewTransactions"){
                             echo "<input type='hidden' name='startdate' value='" . $_GET["startdate"] . "'>";

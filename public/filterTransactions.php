@@ -18,11 +18,17 @@
             format: "D-MMM-YYYY (ddd)",
             ignoreReadonly: true
         });
+        $("body").keydown(function(e){
+            if(e.keyCode == 13){
+                viewTransactions();
+            }
+        });
     });
     function viewTransactions() {
         let startdate = $("#startdate").val().split(" ")[0];
         let enddate = $("#enddate").val().split(" ")[0];
-        window.location.href = "/viewTransactions.php?startdate=" + startdate + "&enddate=" + enddate;
+        let searchTerm = $("#searchTerm").val();
+        window.location.href = "/viewTransactions.php?startdate=" + startdate + "&enddate=" + enddate + "&searchTerm=" + searchTerm;
     }
 </script>
 <body>
@@ -48,6 +54,11 @@
                         <div class="col-xs-6" style="padding-left: 0px;">
                             <input readonly class="form-control" type="text" name="enddate" id="enddate" style="background: white;" required></input>
                         </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-xs-12">
+                        <input class="form-control" type="text" name="searchTerm" id="searchTerm" placeholder="Search term (optional)"></input>
                     </div>
                 </div>
                 <div class="form-group">
