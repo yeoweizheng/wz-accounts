@@ -6,22 +6,24 @@
     $conn->exec(SQLITEPRAGMA);
     if($_SERVER["REQUEST_METHOD"] == "POST"){
         if($_POST["operation"] == "update"){
-            $stmt = $conn->prepare("UPDATE transactions SET item = :item, type = :type, amount = :amount, account = :account WHERE id = :id");
+            $stmt = $conn->prepare("UPDATE transactions SET item = :item, type = :type, amount = :amount, account = :account WHERE id = :id AND username = :username");
             $stmt->bindValue(":item", htmlspecialchars($_POST["item"]));
             $stmt->bindValue(":type", $_POST["type"]);
             $stmt->bindValue(":amount", $_POST["amount"]);
             $stmt->bindValue(":account", $_POST["account"]);
             $stmt->bindValue(":id", $_POST["id"]);
-            if($stmt->execute()){
+            $stmt->bindValue(":username", $_SESSION["username"]);
+            if($stmt->execute() && $conn->changes() == 1){
                 $_SESSION["successAlert"] = "Transaction updated";
             } else{
                 $_SESSION["errorAlert"] = "Failed to update transaction";
             }
         }
         if($_POST["operation"] == "delete"){
-            $stmt = $conn->prepare("DELETE FROM transactions WHERE id = :id");
+            $stmt = $conn->prepare("DELETE FROM transactions WHERE id = :id AND username = :username");
             $stmt->bindValue(":id", $_POST["id"]);
-            if($stmt->execute()){
+            $stmt->bindValue(":username", $_SESSION["username"]);
+            if($stmt->execute() && $conn->changes() == 1){
                 $_SESSION["successAlert"] = "Transaction deleted";
             } else{
                 $_SESSION["errorAlert"] = "Failed to delete transaction";

@@ -5,9 +5,10 @@
     $conn = new SQLite3(SQLITEFILE, SQLITE3_OPEN_READWRITE);
     $conn->exec(SQLITEPRAGMA);
     if($_SERVER["REQUEST_METHOD"] == "POST"){
-        $stmt = $conn->prepare("DELETE from money_accounts WHERE id = :id");
+        $stmt = $conn->prepare("DELETE from money_accounts WHERE id = :id AND username = :username");
         $stmt->bindValue(":id", $_POST["id"]);
-        if($stmt->execute()){
+        $stmt->bindValue(":username", $_SESSION["username"]);
+        if($stmt->execute() && $conn->changes() == 1){
             $_SESSION["successAlert"] = "Transaction account deleted";
         } else{
             $_SESSION["errorAlert"] = "Failed to delete transaction account";
