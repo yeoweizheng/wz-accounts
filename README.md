@@ -20,7 +20,7 @@ Manually insert new username & password hash to `user_accounts` table with PHP's
 Update `config.php` with SQLITE file info.
 
 ### Screenshots
-<img width="948" alt="a" src="https://user-images.githubusercontent.com/30838747/236214757-04292810-1404-4bd9-bbf4-dae259e3cd8c.png">
-<img width="911" alt="b" src="https://user-images.githubusercontent.com/30838747/236214776-277203e2-03ba-4e0d-91ea-f9a7efb029d4.png">
-<img width="915" alt="c" src="https://user-images.githubusercontent.com/30838747/236214783-6626c322-2c03-49e4-82bb-97505d26d568.png">
-<img width="911" alt="d" src="https://user-images.githubusercontent.com/30838747/236214796-07e6208b-1013-46fb-afb2-39ea83bdceb7.png">
+<img width="948" alt="a" src="https://user-images.githubusercontent.com/30838747/236216061-f562013b-050e-42e3-94cc-abdc91dbbd7d.png">
+<img width="915" alt="b" src="https://user-images.githubusercontent.com/30838747/236216076-6f26dc07-d06b-4a0a-9793-9a266be53449.png">
+<img width="915" alt="c" src="https://user-images.githubusercontent.com/30838747/236216177-89072824-73df-4b8f-91a2-a7fe0a89d493.png">
+<img width="915" alt="d" src="https://user-images.githubusercontent.com/30838747/236216537-464497c9-5f97-46b2-9dcc-8658e193dd0e.png">
