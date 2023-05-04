@@ -19,4 +19,8 @@ Manually insert new username & password hash to `user_accounts` table with PHP's
 
 Update `config.php` with SQLITE file info.
 
-Log in and enjoy!
+### Screenshots
+<img width="948" alt="a" src="https://user-images.githubusercontent.com/30838747/236214757-04292810-1404-4bd9-bbf4-dae259e3cd8c.png">
+<img width="911" alt="b" src="https://user-images.githubusercontent.com/30838747/236214776-277203e2-03ba-4e0d-91ea-f9a7efb029d4.png">
+<img width="915" alt="c" src="https://user-images.githubusercontent.com/30838747/236214783-6626c322-2c03-49e4-82bb-97505d26d568.png">
+<img width="911" alt="d" src="https://user-images.githubusercontent.com/30838747/236214796-07e6208b-1013-46fb-afb2-39ea83bdceb7.png">
