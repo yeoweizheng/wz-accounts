@@ -112,7 +112,7 @@
                     </div>
                     <div class="form-group">
                         <label> Item: </label>
-                        <input class="form-control" type="text" name="item" required></input>
+                        <input class="form-control" type="text" name="item" required autofocus></input>
                     </div>
                     <div class="form-group">
                         <label> Type: </label>
