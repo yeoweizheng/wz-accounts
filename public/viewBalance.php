@@ -4,10 +4,11 @@
     require "../verifyAuth.php";
     $conn = new SQLite3(SQLITEFILE, SQLITE3_OPEN_READWRITE);
     $conn->exec(SQLITEPRAGMA);
+    $rates_file = "rates.json";
     if($_SERVER["REQUEST_METHOD"] == "POST"){
         if($_POST["retrieveRates"] == "1") {
             $cSession = curl_init();
-            $fh = fopen("rates.json", "w+");
+            $fh = fopen($rates_file, "w+");
             curl_setopt($cSession, CURLOPT_URL, CURRENCY_API_URL);
             curl_setopt($cSession, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($cSession, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
@@ -29,7 +30,8 @@
     $stmt = $conn->prepare("SELECT balance_date, base_account FROM user_accounts WHERE username = :username");
     $stmt->bindValue(":username", $_SESSION["username"]);
     $row = $stmt->execute()->fetchArray();
-    $rates = file_get_contents('rates.json');
+    $rates = file_get_contents($rates_file);
+    $rates_mtime = date("Y-m-d H:i:s T", filemtime($rates_file));
 ?>
 <script>
     $(document).ready(function(){
@@ -154,6 +156,7 @@
                                     <input type="hidden" id="retrieveRates" name="retrieveRates" value="0" />
                                     <button class="btn btn-primary btn-block" id="retrieveRatesBtn">Retrieve rates</button>
                                 </div>
+                                <div class="col-xs-12" style="text-align: right;"><small style="font-size: x-small;">Last updated: <?php echo $rates_mtime ?></small></div>
                             </div>
                         </form>
                     </div>
