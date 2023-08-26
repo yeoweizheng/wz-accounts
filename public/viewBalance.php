@@ -5,17 +5,31 @@
     $conn = new SQLite3(SQLITEFILE, SQLITE3_OPEN_READWRITE);
     $conn->exec(SQLITEPRAGMA);
     if($_SERVER["REQUEST_METHOD"] == "POST"){
-        $stmt = $conn->prepare("UPDATE user_accounts SET balance_date = :balance_date WHERE username = :username");
+        if($_POST["retrieveRates"] == "1") {
+            $cSession = curl_init();
+            $fh = fopen("rates.json", "w+");
+            curl_setopt($cSession, CURLOPT_URL, CURRENCY_API_URL);
+            curl_setopt($cSession, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($cSession, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+            curl_setopt($cSession, CURLOPT_TIMEOUT, 5);
+            curl_setopt($cSession, CURLOPT_FILE, $fh);
+            $response = curl_exec($cSession);
+            curl_close($cSession);
+            fclose($fh);
+        }
+        $stmt = $conn->prepare("UPDATE user_accounts SET balance_date = :balance_date, base_account = :base_account WHERE username = :username");
         $date = date("Y-m-d", strtotime(explode(" ", $_POST["date"])[0]));
         $stmt->bindValue(":balance_date", $date);
+        $stmt->bindValue(":base_account", $_POST["baseAccount"]);
         $stmt->bindValue(":username", $_SESSION["username"]);
         $stmt->execute();
         header("Location: viewBalance.php");
         exit();
     }
-    $stmt = $conn->prepare("SELECT balance_date FROM user_accounts WHERE username = :username");
+    $stmt = $conn->prepare("SELECT balance_date, base_account FROM user_accounts WHERE username = :username");
     $stmt->bindValue(":username", $_SESSION["username"]);
     $row = $stmt->execute()->fetchArray();
+    $rates = file_get_contents('rates.json');
 ?>
 <script>
     $(document).ready(function(){
@@ -27,6 +41,17 @@
         $("#date").on("dp.change", function(e){
             $("#dateForm").submit();
         });
+        let baseAccount = "<?php echo $row['base_account']?>";
+        if (baseAccount) $("#baseAccount").val(baseAccount);
+        $("#baseAccount").change(function(){
+            $("#dateForm").submit();
+        });
+        $("#retrieveRatesBtn").click(function(e){
+            e.preventDefault();
+            $("#retrieveRates").attr("value", "1");
+            $("#dateForm").submit();
+        })
+        calculateOverallBalance(baseAccount);
     });
     function next(){
         $("#date").val(moment($("#date").val(), "D-MMM-YYYY").add(1, "day").format("D-MMM-YYYY (ddd)"));
@@ -35,6 +60,25 @@
     function prev(){
         $("#date").val(moment($("#date").val(), "D-MMM-YYYY").subtract(1, "day").format("D-MMM-YYYY (ddd)"));
         $("#dateForm").submit();
+    }
+    function getExchangeRate(rates, fromCurrency, toCurrency) {
+        let toRate;
+        let fromRate;
+        for(const [k, v] of Object.entries(rates["data"])) {
+            if(toCurrency == k) toRate = v["value"];
+            if(fromCurrency == k) fromRate = v["value"];
+        }
+        return toRate / fromRate;
+    }
+    function calculateOverallBalance(baseCurrency) {
+        let rates = JSON.parse('<?php echo $rates ?>');
+        let amountBaseCurrency = 0;
+        $("span.accountSpan").each(function() {
+            let currency = $(this).attr("id");
+            let amount = $(this).html();
+            amountBaseCurrency += amount * getExchangeRate(rates, currency, baseCurrency);
+        });
+        $("#overallBaseCurrency").html(`Overall (${baseCurrency}): ${amountBaseCurrency.toFixed(2)}`);
     }
 </script>
 <body>
@@ -73,27 +117,45 @@
                             }
                         }
                         foreach($balances as $account => $balance){
-                            echo "<h4 style='margin-top: 0.5em; margin-bottom: 0.5em'>" . $account . ": " . number_format($balance, 2, ".", "") . "</h4>";
+                            echo "<h4 style='margin-top: 0.5em; margin-bottom: 0.5em'>" . $account . ": <span class='accountSpan' id='" . $account . "'>" . number_format($balance, 2, ".", "") . "</span></h4>";
                         }
                     ?>
+                    <h4 style='margin-top: 1em; margin-bottom: 1em' id='overallBaseCurrency'></h4>
                 </div>
                     <div class="form-group">
                         <label> Since: </label>
                         <form id="dateForm" method="POST">
-                            <div class="row">
+                            <div class="form-group row">
                                 <div class="col-xs-12">
                                     <input readonly class="form-control" type="text" name="date" id="date" style="background: white;"></input>
                                 </div>
+                                <div class="col-xs-6" style="padding-right: 0px;">
+                                    <button class="btn btn-default btn-sm btn-block" onclick="prev();">&lt; Prev</button>
+                                </div>
+                                <div class="col-xs-6" style="padding-left: 0px;">
+                                    <button class="btn btn-default btn-sm btn-block" onclick="next();">Next &gt;</button>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-xs-12"> <label> Base currency: </label> </div>
+                                <div class="col-xs-6" style="padding-right: 0px;">
+                                    <select class="form-control" name="baseAccount" id="baseAccount">
+                                        <?php
+                                            $stmt = $conn->prepare("SELECT account FROM money_accounts WHERE username = :username ORDER BY id ASC");
+                                            $stmt->bindValue(":username", $_SESSION["username"]);
+                                            $result = $stmt->execute();
+                                            while($row = $result->fetchArray()){
+                                                echo "<option>" . $row["account"] . "</option>";
+                                            }
+                                        ?>
+                                    </select>
+                                </div>
+                                <div class="col-xs-6" style="padding-left: 0px;">
+                                    <input type="hidden" id="retrieveRates" name="retrieveRates" value="0" />
+                                    <button class="btn btn-primary btn-block" id="retrieveRatesBtn">Retrieve rates</button>
+                                </div>
                             </div>
                         </form>
-                        <div class="row">
-                            <div class="col-xs-6" style="padding-right: 0px;">
-                                <button class="btn btn-default btn-sm btn-block" onclick="prev();">&lt; Prev</button>
-                            </div>
-                            <div class="col-xs-6" style="padding-left: 0px;">
-                                <button class="btn btn-default btn-sm btn-block" onclick="next();">Next &gt;</button>
-                            </div>
-                        </div>
                     </div>
             </div>
             <?php require "../panelFooter.php"; ?>
