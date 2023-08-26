@@ -11,7 +11,7 @@ This is a simple personal expenses & income tracking website with the following 
 Clone repository, point web server to `public/` folder.
 
 Set up SQLITE database with the following tables & columns:
-* `user_accounts` table with `username`, `password`, `balance_date` columns
+* `user_accounts` table with `username`, `password`, `balance_date`, `base_account` columns
 * `money_accounts` table with `id`, `username`, `account` columns
 * `transactions` table with `id`, `username`, `item`, `type`, `amount`, `account`, `transaction_date` columns
 
