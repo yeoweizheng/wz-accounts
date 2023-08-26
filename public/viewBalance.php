@@ -14,7 +14,7 @@
             curl_setopt($cSession, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
             curl_setopt($cSession, CURLOPT_TIMEOUT, 5);
             curl_setopt($cSession, CURLOPT_FILE, $fh);
-            $response = curl_exec($cSession);
+            curl_exec($cSession);
             curl_close($cSession);
             fclose($fh);
         }
